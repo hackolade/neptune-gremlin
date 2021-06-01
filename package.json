@@ -1,0 +1,35 @@
+{
+    "name": "Neptune-Gremlin",
+    "version": "0.0.2",
+    "versionDate": "2021-06-01",
+    "author": "hackolade",
+    "engines": {
+        "hackolade": "4.2.10",
+        "hackoladePlugin": "1.0.0"
+    },
+    "contributes": {
+        "target": {
+            "applicationTarget": "Neptune-Gremlin",
+            "title": "Neptune w/ Gremlin API",
+			"versions": []
+		},
+        "features": {
+            "jaySchemaHasRequiredPatternField": false,
+            "nestedCollections": {
+                "isVirtual":true,
+                "hasMultipleParents":true
+            },
+            "graphDB": true,
+            "relationships": {
+                "connectOnEntityLevel": true,
+                "hasData": true
+            },
+            "enableForwardEngineering": true,
+            "enableReverseEngineering": true,
+            "disableChoices": true,
+            "disableMultipleTypes": true
+        }
+    },
+    "description": "Hackolade plugin for Amazon Neptune with Gremlin API",
+    "disabled": false
+}
