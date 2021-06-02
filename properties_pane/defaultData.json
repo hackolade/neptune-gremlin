@@ -5,7 +5,7 @@
 		"dbVendor": "Amazon Neptune"
 	},
 	"container": {
-		"name": "New instance",
+		"name": "New cluster",
 		"port": 8182,
 		"dbParameterGroup": "default.neptune1",
 		"dbClusterParameterGroup": "default.neptune1",

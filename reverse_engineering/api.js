@@ -6,13 +6,6 @@ const neptuneHelper = require('./neptuneHelper');
 const queryHelper = require('./queryHelper');
 
 module.exports = {
-	connect: function(connectionInfo, logger, app){
-
-		return Promise.all([
-			connectionHelper.connect(connectionInfo),
-		]);
-	},
-
 	disconnect: function(connectionInfo, cb){
 		connectionHelper.close();
 		neptuneHelper.close();
