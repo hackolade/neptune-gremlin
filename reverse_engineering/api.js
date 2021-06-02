@@ -6,13 +6,6 @@ const neptuneHelper = require('./neptuneHelper');
 const queryHelper = require('./queryHelper');
 
 module.exports = {
-	connect: function(connectionInfo, logger, app){
-
-		return Promise.all([
-			connectionHelper.connect(connectionInfo),
-		]);
-	},
-
 	disconnect: function(connectionInfo, cb){
 		connectionHelper.close();
 		neptuneHelper.close();
@@ -25,8 +18,14 @@ module.exports = {
 			logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 
 			const neptuneInstance = await neptuneHelper.connect(app.require('aws-sdk'), connectionInfo);
-			await neptuneInstance.getBucketInfo();
-			
+			const clusterInfo = await neptuneInstance.getBucketInfo();
+			const connection = await connectionHelper.connect({
+				...connectionInfo,
+				host: clusterInfo.ReaderEndpoint,
+				port: clusterInfo.Port,
+			});
+			await connection.testConnection();
+
 			this.disconnect(connectionInfo, () => {});
 
 			cb();
@@ -195,7 +194,7 @@ const getNodesData = async ({
 	});
 			
 			
-	const sortedPackages = sortPackagesByLabels(_, labels, packages);
+	const sortedPackages = sortPackagesByLabels(_, labels, packages.filter(Boolean));
 
 	return sortedPackages;
 };

@@ -148,9 +148,51 @@ making sure that you maintain a proper JSON format.
 				]
 			},
 			{
-				"propertyName": "DB cluster",
-				"propertyKeyword": "DBClusterIdentifier",
-				"propertyType": "text"
+				"propertyName": "DB instances",
+				"propertyKeyword": "dbInstances",
+				"propertyType": "group",
+				"structure": [
+					{
+						"propertyName": "Identifier",
+						"propertyKeyword": "dbInstanceIdentifier",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Role",
+						"propertyKeyword": "dbInstanceRole",
+						"propertyType": "select",
+						"defaultValue": "Reader",
+						"options": [
+							"Reader",
+							"Writer"
+						]
+					},
+					{
+						"propertyName": "Promotion Tier",
+						"propertyKeyword": "PromotionTier",
+						"propertyTooltip": "Select from list of options",
+						"propertyType": "select",
+						"options": [
+							"No preference",
+							"tier-0",
+							"tier-1",
+							"tier-2",
+							"tier-3",
+							"tier-4",
+							"tier-5",
+							"tier-6",
+							"tier-7",
+							"tier-8",
+							"tier-9",
+							"tier-10",
+							"tier-11",
+							"tier-12",
+							"tier-13",
+							"tier-14",
+							"tier-15"
+						]
+					}
+				]
 			},
 			{
 				"propertyName": "ARN",
@@ -203,31 +245,6 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Encryption",
 				"propertyKeyword": "StorageEncrypted",
 				"propertyType": "checkbox"
-			},
-			{
-				"propertyName": "Promotion Tier",
-				"propertyKeyword": "PromotionTier",
-				"propertyTooltip": "Select from list of options",
-				"propertyType": "select",
-				"options": [
-					"No preference",
-					"tier-0",
-					"tier-1",
-					"tier-2",
-					"tier-3",
-					"tier-4",
-					"tier-5",
-					"tier-6",
-					"tier-7",
-					"tier-8",
-					"tier-9",
-					"tier-10",
-					"tier-11",
-					"tier-12",
-					"tier-13",
-					"tier-14",
-					"tier-15"
-				]
 			},
 			{
 				"propertyName": "Backup retention period (days)",

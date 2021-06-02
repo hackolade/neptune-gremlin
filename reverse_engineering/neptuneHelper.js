@@ -36,8 +36,8 @@ const neptuneHelper = {
 
 			async getBucketInfo() {
 				let options = {
+					name: dbClusterIdentifier,
 					"source-region": clusterRegion,
-					DBClusterIdentifier: dbClusterIdentifier,
 				};
 				const clusterInfo = await this.getCluster();
 
@@ -45,7 +45,6 @@ const neptuneHelper = {
 					return options;
 				}
 				const dbInstance = clusterInfo['DBClusterMembers'][0];
-				options.name = dbInstance['DBInstanceIdentifier'];
 				options.DBClusterArn = clusterInfo['DBClusterArn'];
 				options.Endpoint = clusterInfo['Endpoint'];
 				options.ReaderEndpoint = clusterInfo['ReaderEndpoint'];
@@ -57,36 +56,17 @@ const neptuneHelper = {
 				options.IAMDatabaseAuthenticationEnabled = clusterInfo['IAMDatabaseAuthenticationEnabled'];
 				options.StorageEncrypted = clusterInfo['StorageEncrypted'];
 				options.BackupRetentionPeriod = String(clusterInfo['BackupRetentionPeriod']);				
-				options.PromotionTier = isNaN(dbInstance['PromotionTier']) ? 'No preference' : `tier-${dbInstance['PromotionTier']}`;
 				
+				options.dbInstances = clusterInfo['DBClusterMembers'].map((instance) => {
+					return {
+						dbInstanceIdentifier: instance['DBInstanceIdentifier'],
+						dbInstanceRole: instance['IsClusterWriter'] ? 'Writer' : 'Reader',
+						PromotionTier: isNaN(instance['PromotionTier']) ? 'No preference' : `tier-${instance['PromotionTier']}`,
+					};
+				});
+
 				return options;
 			},
-
-			async getDbNames() {
-				const clusterInfo = await this.getCluster();
-
-				if (!clusterInfo) {
-					return [];
-				}
-
-				const dbInstances = clusterInfo['DBClusterMembers'];
-
-				if (!dbInstances) {
-					return [];
-				}
-
-				return dbInstances.map(db => db['DBInstanceIdentifier']);
-			},
-
-			async getDbInstances() {
-				const instances = await describeDBInstances(neptune, { dbClusterIdentifier: dbClusterIdentifier });
-				
-				return instances.filter(instance => instance['Endpoint']).map(instance => ({
-					name: instance['DBInstanceIdentifier'],
-					host: instance['Endpoint']['Address'],
-					port: instance['Endpoint']['Port'],
-				}));
-			}
 		};
 
 		return neptuneInstance;
