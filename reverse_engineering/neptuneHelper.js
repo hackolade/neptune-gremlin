@@ -6,7 +6,7 @@ const neptuneHelper = {
 			return neptuneInstance;
 		}
 
-		let awsOptions = ['accessKeyId', 'secretAccessKey', 'sessionToken'].reduce((options, key) => {
+		let awsOptions = ['accessKeyId', 'secretAccessKey', 'sessionToken', 'region'].reduce((options, key) => {
 			if (!info[key]) {
 				return options;
 			}
