@@ -19,12 +19,17 @@ module.exports = {
 
 			const neptuneInstance = await neptuneHelper.connect(app.require('aws-sdk'), connectionInfo);
 			const clusterInfo = await neptuneInstance.getBucketInfo();
+			logger.log('info', { clusterInfo, message: 'Successfully connected to AWS' }, 'Test connection');
 			const connection = await connectionHelper.connect({
 				...connectionInfo,
 				host: clusterInfo.ReaderEndpoint,
 				port: clusterInfo.Port,
+				debug: (message) => {
+					logger.log('info', { message }, 'SSH Debug');
+				}
 			});
 			await connection.testConnection();
+			logger.log('info', { 'message': 'Successfully connected to Neptune Database' }, 'Test connection');
 
 			this.disconnect(connectionInfo, () => {});
 
@@ -42,16 +47,21 @@ module.exports = {
 			logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 			const neptuneInstance = await neptuneHelper.connect(app.require('aws-sdk'), connectionInfo);
 			const clusterInfo = await neptuneInstance.getBucketInfo();
+			logger.log('info', { clusterInfo, message: 'Successfully connected to AWS' }, 'Get label names');
 			const connection = await connectionHelper.connect({
 				...connectionInfo,
 				host: clusterInfo.ReaderEndpoint,
 				port: clusterInfo.Port,
+				debug: (message) => {
+					logger.log('info', { message }, 'SSH Debug');
+				}
 			});
 			const query = queryHelper({
 				_: app.require('lodash'),
 				connection,
 			});
 			const labels = await query.getLabels();
+			logger.log('info', { labels, message: 'Labels got successfully' }, 'Get label names');
 
 			cb(null, [{
 				dbName: clusterInfo.name,
