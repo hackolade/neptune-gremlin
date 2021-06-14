@@ -16,7 +16,8 @@ const getSshConfig = (info) => {
 		dstPort: info.port,
 		localHost: '127.0.0.1',
 		localPort: info.port,
-		keepAlive: true
+		keepAlive: true,
+		debug: info.debug,
 	};
 
 	return Object.assign({}, config, {
