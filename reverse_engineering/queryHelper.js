@@ -23,26 +23,30 @@ module.exports = ({ _, connection }) => {
 			return response.toArray();
 		},
 
-		async getRelationshipSchema(labels) {
+		async getRelationshipSchema(labels, getLimit) {
 			const relationshipPromises = labels.map(async label => {
-                const relationshipData = await connection.submit(
-                    `g.V().hasLabel('${label}').outE().dedup().by(label).as('edge').inV().as('end').select('edge', 'end').by(label).dedup().toList()`
-                );
+				const relationshipsCount = await connection.submit(`g.V().hasLabel('${label}').outE().count()`);
 
-                const relationships = relationshipData.toArray();
+				const limit = getLimit(relationshipsCount.toArray()[0]) || 100;
 
-                if (_.isEmpty(relationships)) {
-                    return [];
-                }
+				const relationshipData = await connection.submit(
+					`g.V().hasLabel('${label}').outE().limit(${limit}).as('edge').inV().as('end').select('edge', 'end').by(label).dedup().toList()`
+				);
 
-                return relationships.map(relationshipData => ({
-                    start: label,
-                    relationship: relationshipData.get('edge'),
-                    end: relationshipData.get('end'),
-                }));
-            });
+				const relationships = relationshipData.toArray();
 
-            return (await Promise.all(relationshipPromises)).flat();
+				if (_.isEmpty(relationships)) {
+					return [];
+				}
+
+				return relationships.map(relationshipData => ({
+					start: label,
+					relationship: relationshipData.get('edge'),
+					end: relationshipData.get('end'),
+				}));
+			});
+
+			return (await Promise.all(relationshipPromises)).flat();
 		},
 
 		async getCountRelationshipsData(start, relationship, end) {

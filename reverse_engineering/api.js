@@ -114,9 +114,10 @@ module.exports = {
 				packages.labels.push(labelPackages.map(pack => ({ ...pack, bucketInfo, })));
 				labels = labelPackages.map(packageData => packageData.collectionName);
 
-				let relationshipSchema = await query.getRelationshipSchema(labels);
+				const getLimit = quantity => getCount(quantity, recordSamplingSettings);
+				let relationshipSchema = await query.getRelationshipSchema(labels, getLimit);
 				relationshipSchema = relationshipSchema.filter(data => {
-					return (labels.indexOf(data.start) !== -1 && labels.indexOf(data.end) !== -1);
+					return labels.indexOf(data.start) !== -1 && labels.indexOf(data.end) !== -1;
 				});
 				const relationships = await getRelationshipData({
 					_,
