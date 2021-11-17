@@ -31,7 +31,7 @@ module.exports = ({ _, connection }) => {
 
                 const relationships = relationshipData.toArray();
 
-                if (!relationships) {
+                if (_.isEmpty(relationships)) {
                     return [];
                 }
 
