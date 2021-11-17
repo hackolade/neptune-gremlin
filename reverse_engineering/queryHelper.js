@@ -23,26 +23,26 @@ module.exports = ({ _, connection }) => {
 			return response.toArray();
 		},
 
-		async getRelationshipSchema(labels, limit = 100) {
-			return Promise.all(
-				labels.map(async label => {
-					const relationshipData = await connection.submit(
-						`g.V().hasLabel('${label}').outE().limit(${limit}).as('edge').inV().as('end').select('edge', 'end').by(label).dedup().toList()`
-					);
+		async getRelationshipSchema(labels) {
+			const relationshipPromises = labels.map(async label => {
+                const relationshipData = await connection.submit(
+                    `g.V().hasLabel('${label}').outE().dedup().by(label).as('edge').inV().as('end').select('edge', 'end').by(label).dedup().toList()`
+                );
 
-					const relationship = _.first(relationshipData.toArray());
+                const relationships = relationshipData.toArray();
 
-					if (!relationship) {
-						return {};
-					}
+                if (!relationships) {
+                    return [];
+                }
 
-					return {
-						start: label,
-						relationship: relationship.get('edge'),
-						end: relationship.get('end')
-					};
-				}),
-			);
+                return relationships.map(relationshipData => ({
+                    start: label,
+                    relationship: relationshipData.get('edge'),
+                    end: relationshipData.get('end'),
+                }));
+            });
+
+            return (await Promise.all(relationshipPromises)).flat();
 		},
 
 		async getCountRelationshipsData(start, relationship, end) {
