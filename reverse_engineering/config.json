@@ -5,5 +5,6 @@
 	},
 	"excludeDocKind": ["id"],
 	"connectionList": [ "name", "dbClusterIdentifier", "ssh_user", "region" ],
-	"widestColumn": "dbClusterIdentifier"
+	"widestColumn": "dbClusterIdentifier",
+	"helpUrl": "https://hackolade.com/help/ConnecttoaNeptuneinstance.html"
 }
