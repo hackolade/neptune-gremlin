@@ -86,7 +86,6 @@ module.exports = {
 			const dataBaseNames = data.collectionData.dataBaseNames;
 			const fieldInference = data.fieldInference;
 			const includeEmptyCollection = data.includeEmptyCollection;
-			const includeSystemCollection = data.includeSystemCollection;
 			const recordSamplingSettings = data.recordSamplingSettings;
 			let packages = {
 				labels: [],
@@ -114,7 +113,7 @@ module.exports = {
 				packages.labels.push(labelPackages.map(pack => ({ ...pack, bucketInfo, })));
 				labels = labelPackages.map(packageData => packageData.collectionName);
 
-				const getLimit = quantity => getCount(quantity, recordSamplingSettings);
+				const getLimit = quantity => getSampleDocSize(quantity, recordSamplingSettings);
 				let relationshipSchema = await query.getRelationshipSchema(labels, getLimit);
 				relationshipSchema = relationshipSchema.filter(data => {
 					return labels.indexOf(data.start) !== -1 && labels.indexOf(data.end) !== -1;
@@ -140,12 +139,14 @@ module.exports = {
 	}
 };
 
-const getCount = (count, recordSamplingSettings) => {
-	const per = recordSamplingSettings.relative.value;
-	const size = (recordSamplingSettings.active === 'absolute')
-		? recordSamplingSettings.absolute.value
-		: Math.round(count / 100 * per);
-	return size;
+const getSampleDocSize = (count, recordSamplingSettings) => {
+	if (recordSamplingSettings.active === 'absolute') {
+		return Number(recordSamplingSettings.absolute.value);
+	}
+
+	const limit = Math.ceil((count * recordSamplingSettings.relative.value) / 100);
+
+	return Math.min(limit, recordSamplingSettings.maxValue);
 };
 
 const isEmptyLabel = (_, documents) => {
@@ -181,7 +182,7 @@ const getNodesData = async ({
 		const quantity = await query.getNodesCount(labelName);
 		
 		logger.progress({ message: 'Start getting data from graph', containerName: dbName, entityName: labelName });
-		const limit = getCount(quantity, sampling.recordSamplingSettings);
+		const limit = getSampleDocSize(quantity, sampling.recordSamplingSettings);
 
 		const documents = await query.getNodes(labelName, limit);
 		const graphSons = await query.getSchema('V', labelName, limit);
@@ -236,7 +237,7 @@ const getRelationshipData = ({
 }) => {
 	return async.map(schema, async (chain) => {
 		const quantity = await query.getCountRelationshipsData(chain.start, chain.relationship, chain.end);
-		const count = getCount(quantity, recordSamplingSettings);
+		const count = getSampleDocSize(quantity, recordSamplingSettings);
 		const documents = await query.getRelationshipData(chain.start, chain.relationship, chain.end, count);
 		const graphSons = await query.getSchema('E', chain.relationship, count);
 		const schema = getSchema(graphSons);
