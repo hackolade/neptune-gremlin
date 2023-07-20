@@ -1,7 +1,7 @@
 {
     "name": "Neptune-Gremlin",
-    "version": "0.1.6",
-    "versionDate": "2022-05-27",
+    "version": "0.1.7",
+    "versionDate": "2022-07-20",
     "author": "hackolade",
     "engines": {
         "hackolade": "4.2.10",

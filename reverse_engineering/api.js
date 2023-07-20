@@ -61,7 +61,7 @@ module.exports = {
 				connection,
 			});
 			const labels = await query.getLabels();
-			logger.log('info', { labels, message: 'Labels got successfully' }, 'Get label names');
+			logger.log('info', { labels, message: 'Labels successfully rertieved' }, 'Get label names');
 
 			cb(null, [{
 				dbName: clusterInfo.name,
@@ -189,7 +189,7 @@ const getNodesData = async ({
 		const schema = getSchema(graphSons);
 		const template = [];
 
-		logger.progress({ message: `Data has successfully got`, containerName: dbName, entityName: labelName });
+		logger.progress({ message: `Data successfully retrieved`, containerName: dbName, entityName: labelName });
 		
 		const packageData = getLabelPackage({
 			includeEmptyCollection: sampling.includeEmptyCollection, 
