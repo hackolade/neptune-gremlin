@@ -1,6 +1,5 @@
-
 const getType = rawType => {
-	switch(rawType) {
+	switch (rawType) {
 		case 'g:List':
 			return { type: 'list' };
 		case 'g:Map':
@@ -27,7 +26,7 @@ const getType = rawType => {
 	}
 };
 
-const getValue = (item) => {
+const getValue = item => {
 	if (isPlainObject(item)) {
 		return item['@value'];
 	} else {
@@ -36,24 +35,27 @@ const getValue = (item) => {
 };
 
 const groupPropertiesForMap = properties => {
-	const { keys, values} = properties.reduce(({keys, values}, property, index) => {
-		if (index % 2) {
-			return { keys, values: [ ...values, convertGraphSonToJsonSchema(property)] };
-		}
+	const { keys, values } = properties.reduce(
+		({ keys, values }, property, index) => {
+			if (index % 2) {
+				return { keys, values: [...values, convertGraphSonToJsonSchema(property)] };
+			}
 
-		return { keys: [ ...keys, getValue(property) + ''], values };
-	}, {
-		keys: [],
-		values: []
-	});
+			return { keys: [...keys, getValue(property) + ''], values };
+		},
+		{
+			keys: [],
+			values: [],
+		},
+	);
 
 	return keys.reduce((properties, key, index) => {
 		return Object.assign({}, properties, {
-			[key]: values[index] || {}
+			[key]: values[index] || {},
 		});
 	}, {});
 };
-const getUniqItems = (items) => {
+const getUniqItems = items => {
 	return items.reduce((result, item) => {
 		const exists = result.find(existed => existed.type === item.type && existed.mode === item.mode);
 
@@ -67,11 +69,11 @@ const getUniqItems = (items) => {
 
 const getItems = properties => properties.map(convertGraphSonToJsonSchema);
 
-const isPlainObject = (obj) => obj && typeof obj === 'object';
+const isPlainObject = obj => obj && typeof obj === 'object';
 
-const getDateSample = (date) => {
+const getDateSample = date => {
 	const year = date.getFullYear();
-	const month = ((date.getMonth() + 1) + '').padStart(2, '0');
+	const month = (date.getMonth() + 1 + '').padStart(2, '0');
 	const day = (date.getDate() + '').padStart(2, '0');
 	const hours = (date.getHours() + '').padStart(2, '0');
 	const minutes = (date.getMinutes() + '').padStart(2, '0');
@@ -90,11 +92,11 @@ const getSample = (type, value) => {
 	}
 };
 
-const convertGraphSonToJsonSchema = (graphSON) => {
+const convertGraphSonToJsonSchema = graphSON => {
 	if (!isPlainObject(graphSON)) {
 		return {
 			type: typeof graphSON,
-			sample: graphSON
+			sample: graphSON,
 		};
 	}
 
@@ -105,7 +107,7 @@ const convertGraphSonToJsonSchema = (graphSON) => {
 	if (rawType === 'g:Map') {
 		const properties = groupPropertiesForMap(rawProperties);
 
-		return { type, properties }
+		return { type, properties };
 	}
 
 	if (rawType === 'g:List' || rawType === 'g:Set') {
@@ -117,7 +119,7 @@ const convertGraphSonToJsonSchema = (graphSON) => {
 
 		const propCardinality = items.length > 1 ? 'set' : 'single';
 		const uniqueItems = getUniqItems(items);
-		
+
 		if (uniqueItems.length === 1) {
 			return {
 				...uniqueItems,
@@ -132,7 +134,7 @@ const convertGraphSonToJsonSchema = (graphSON) => {
 	}
 
 	if (mode) {
-		return { type, mode, sample: getSample(type, rawProperties) }
+		return { type, mode, sample: getSample(type, rawProperties) };
 	}
 
 	return { type, sample: getSample(type, rawProperties) };

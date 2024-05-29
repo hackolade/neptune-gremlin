@@ -135,7 +135,7 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "coupled",
 				"coupledBy": "namingConvention",
 				"onCoupleAction": "onCoupleCollectionBusinessName",
-    			"shouldValidate": true,
+				"shouldValidate": true,
 				"dependency": {
 					"key": "entityType",
 					"value": "sub-node"
@@ -144,14 +144,14 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyKeyword": "parentCollection",
 				"canBeUnlinked": false,
-				"disabledOnCondition":{
+				"disabledOnCondition": {
 					"type": "not",
 					"values": {
 						"key": "entityType",
 						"value": "sub-node"
 					}
 				},
-				"dependency":{
+				"dependency": {
 					"type": "not",
 					"values": {
 						"key": "entityType",

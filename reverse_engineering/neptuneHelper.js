@@ -37,7 +37,7 @@ const neptuneHelper = {
 			async getBucketInfo() {
 				let options = {
 					name: dbClusterIdentifier,
-					"source-region": clusterRegion,
+					'source-region': clusterRegion,
 				};
 				const clusterInfo = await this.getCluster();
 
@@ -55,13 +55,15 @@ const neptuneHelper = {
 				options.DbClusterResourceId = clusterInfo['DbClusterResourceId'];
 				options.IAMDatabaseAuthenticationEnabled = clusterInfo['IAMDatabaseAuthenticationEnabled'];
 				options.StorageEncrypted = clusterInfo['StorageEncrypted'];
-				options.BackupRetentionPeriod = String(clusterInfo['BackupRetentionPeriod']);				
-				
-				options.dbInstances = clusterInfo['DBClusterMembers'].map((instance) => {
+				options.BackupRetentionPeriod = String(clusterInfo['BackupRetentionPeriod']);
+
+				options.dbInstances = clusterInfo['DBClusterMembers'].map(instance => {
 					return {
 						dbInstanceIdentifier: instance['DBInstanceIdentifier'],
 						dbInstanceRole: instance['IsClusterWriter'] ? 'Writer' : 'Reader',
-						PromotionTier: isNaN(instance['PromotionTier']) ? 'No preference' : `tier-${instance['PromotionTier']}`,
+						PromotionTier: isNaN(instance['PromotionTier'])
+							? 'No preference'
+							: `tier-${instance['PromotionTier']}`,
 					};
 				});
 
@@ -74,21 +76,24 @@ const neptuneHelper = {
 	close() {
 		if (neptuneInstance) {
 			neptuneInstance = null;
-		}	
-	}
+		}
+	},
 };
 
 const describeDBClusters = (neptune, dbClusterIdentifier) => {
 	return new Promise((resolve, reject) => {
-		neptune.describeDBClusters({
-			DBClusterIdentifier: dbClusterIdentifier,
-		}, (err, result) => {
-			if (err) {
-				reject(err);
-			} else {
-				resolve(result);
-			}
-		})
+		neptune.describeDBClusters(
+			{
+				DBClusterIdentifier: dbClusterIdentifier,
+			},
+			(err, result) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(result);
+				}
+			},
+		);
 	});
 };
 
@@ -99,22 +104,24 @@ const describeDBInstances = (neptune, { dBInstanceIdentifier, dbClusterIdentifie
 		if (dbClusterIdentifier) {
 			filters.push({
 				Name: 'db-cluster-id',
-				Values: [dbClusterIdentifier]
+				Values: [dbClusterIdentifier],
 			});
 		}
 
-		neptune.describeDBInstances({
-			DBInstanceIdentifier: dBInstanceIdentifier,
-			Filters: filters,
-		}, (err, result) => {
-			if (err) {
-				reject(err);
-			} else {
-				resolve(result.DBInstances);
-			}
-		})
+		neptune.describeDBInstances(
+			{
+				DBInstanceIdentifier: dBInstanceIdentifier,
+				Filters: filters,
+			},
+			(err, result) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(result.DBInstances);
+				}
+			},
+		);
 	});
 };
-
 
 module.exports = neptuneHelper;

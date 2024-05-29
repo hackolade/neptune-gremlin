@@ -6,7 +6,7 @@ let graphName = 'g';
 
 let connection = null;
 
-const getSshConfig = (info) => {
+const getSshConfig = info => {
 	const config = {
 		ssh: info.ssh,
 		username: info.ssh_user || 'ec2-user',
@@ -22,24 +22,25 @@ const getSshConfig = (info) => {
 
 	return Object.assign({}, config, {
 		privateKey: fs.readFileSync(info.ssh_key_file),
-		passphrase: info.ssh_key_passphrase
+		passphrase: info.ssh_key_passphrase,
 	});
 };
 
-const connectViaSsh = (info) => new Promise((resolve, reject) => {
-	ssh(getSshConfig(info), (err, tunnel) => {
-		if (err) {
-			reject(err);
-		} else {
-			resolve({
-				tunnel,
-				info: Object.assign({}, info, {
-					host: '127.0.0.1'
-				})
-			});
-		}
+const connectViaSsh = info =>
+	new Promise((resolve, reject) => {
+		ssh(getSshConfig(info), (err, tunnel) => {
+			if (err) {
+				reject(err);
+			} else {
+				resolve({
+					tunnel,
+					info: Object.assign({}, info, {
+						host: '127.0.0.1',
+					}),
+				});
+			}
+		});
 	});
-});
 
 const connect = async info => {
 	if (connection) {
@@ -50,7 +51,6 @@ const connect = async info => {
 
 	info = result.info;
 	sshTunnel = result.tunnel;
-	
 
 	const data = await connectToInstance(info);
 	connection = createConnection({ ...data, sshTunnel });
@@ -65,12 +65,12 @@ const close = () => {
 	}
 };
 
-const connectToInstance = async (info) => {
+const connectToInstance = async info => {
 	const host = info.host;
 	const port = info.port;
 	const clientOptions = {
 		traversalSource: graphName,
-		rejectUnauthorized: false
+		rejectUnauthorized: false,
 	};
 	const uri = `wss://${host}:${port}/gremlin`;
 	const client = new gremlin.driver.Client(uri, clientOptions);
@@ -79,10 +79,7 @@ const connectToInstance = async (info) => {
 		reader: createPlainGraphSonReader(),
 	});
 
-	await Promise.all([
-		client.open(),
-		graphSonClient.open(),
-	]);
+	await Promise.all([client.open(), graphSonClient.open()]);
 
 	return {
 		client,
@@ -99,18 +96,18 @@ const createPlainGraphSonReader = () => ({
 				data: obj.result?.data?.['@value'],
 			},
 		};
-	}
+	},
 });
 
 const createConnection = ({ client, graphSonClient, sshTunnel }) => {
 	let closed = false;
-	
+
 	return {
 		testConnection() {
 			if (!client) {
 				return Promise.reject(new Error('Connection error'));
 			}
-		
+
 			return this.submit(`${graphName}.V()`);
 		},
 
@@ -138,7 +135,7 @@ const createConnection = ({ client, graphSonClient, sshTunnel }) => {
 
 		closed() {
 			return closed;
-		}
+		},
 	};
 };
 

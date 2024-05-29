@@ -23,7 +23,7 @@
 	"nestedCollection": {
 		"collectionName": "New sub-vertex",
 		"entityType": "sub-node",
-		"relationName":"Subclass of"
+		"relationName": "Subclass of"
 	},
 	"field": {
 		"name": "New property key",

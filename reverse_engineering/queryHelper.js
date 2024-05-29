@@ -12,13 +12,17 @@ module.exports = ({ _, connection }) => {
 		},
 
 		async getNodes(label, limit = 100) {
-			const response = await connection.submit(`g.V().hasLabel('${label}').limit(${limit}).valueMap(true).toList()`);
+			const response = await connection.submit(
+				`g.V().hasLabel('${label}').limit(${limit}).valueMap(true).toList()`,
+			);
 
 			return response.toArray().map(getItemProperties(_));
 		},
 
 		async getSchema(gremlinElement, label, limit = 100) {
-			const response = await connection.submitGraphson(`g.${gremlinElement}().hasLabel('${label}').limit(${limit}).valueMap()`);
+			const response = await connection.submitGraphson(
+				`g.${gremlinElement}().hasLabel('${label}').limit(${limit}).valueMap()`,
+			);
 
 			return response.toArray();
 		},
@@ -30,7 +34,7 @@ module.exports = ({ _, connection }) => {
 				const limit = getLimit(relationshipsCount.toArray()[0]) || 100;
 
 				const relationshipData = await connection.submit(
-					`g.V().hasLabel('${label}').outE().limit(${limit}).as('edge').inV().as('end').select('edge', 'end').by(label).dedup().toList()`
+					`g.V().hasLabel('${label}').outE().limit(${limit}).as('edge').inV().as('end').select('edge', 'end').by(label).dedup().toList()`,
 				);
 
 				const relationships = relationshipData.toArray();
@@ -66,8 +70,7 @@ module.exports = ({ _, connection }) => {
 						outV().label().is(eq('${start}')),
 						inV().label().is(eq('${end}'))
 					)
-				).limit(${limit}).valueMap(true).toList()`
-			);
+				).limit(${limit}).valueMap(true).toList()`);
 
 			return response.toArray().map(getItemProperties(_));
 		},
@@ -83,7 +86,7 @@ const getItemProperties = _ => propertiesMap => {
 		const value = _.isArray(rawValue) ? _.first(rawValue) : rawValue;
 
 		if (_.isMap(value)) {
-			return Object.assign(obj, { [key]: handleMap(value) })
+			return Object.assign(obj, { [key]: handleMap(value) });
 		}
 
 		return Object.assign(obj, { [key]: value });

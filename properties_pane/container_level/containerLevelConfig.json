@@ -133,18 +133,18 @@ making sure that you maintain a proper JSON format.
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
 				"options": [
-					{"name": "US East (N. Virginia)", "value": "us-east-1"},
-					{"name": "US East (Ohio)", "value": "us-east-2"},
-					{"name": "US West (Oregon)", "value": "us-west-2"},
-					{"name": "Europe (Ireland)", "value": "eu-west-1"},
-					{"name": "Europe (London)", "value": "eu-west-2"},
-					{"name": "Europe (Frankfurt)", "value": "eu-central-1"},
-					{"name": "Asia Pacific (Singapore)", "value": "ap-southeast-1"},
-					{"name": "Asia Pacific (Sydney)", "value": "ap-southeast-2"},
-					{"name": "Asia Pacific (Tokyo)", "value": "ap-northeast-1"},
-					{"name": "Asia Pacific (Mumbai)", "value": "ap-south-1"},
-					{"name": "Asia Pacific (Seoul)", "value": "ap-northeast-2"},
-					{"name": "EU (Stockholm)", "value": "eu-north-1"}
+					{ "name": "US East (N. Virginia)", "value": "us-east-1" },
+					{ "name": "US East (Ohio)", "value": "us-east-2" },
+					{ "name": "US West (Oregon)", "value": "us-west-2" },
+					{ "name": "Europe (Ireland)", "value": "eu-west-1" },
+					{ "name": "Europe (London)", "value": "eu-west-2" },
+					{ "name": "Europe (Frankfurt)", "value": "eu-central-1" },
+					{ "name": "Asia Pacific (Singapore)", "value": "ap-southeast-1" },
+					{ "name": "Asia Pacific (Sydney)", "value": "ap-southeast-2" },
+					{ "name": "Asia Pacific (Tokyo)", "value": "ap-northeast-1" },
+					{ "name": "Asia Pacific (Mumbai)", "value": "ap-south-1" },
+					{ "name": "Asia Pacific (Seoul)", "value": "ap-northeast-2" },
+					{ "name": "EU (Stockholm)", "value": "eu-north-1" }
 				]
 			},
 			{
@@ -162,10 +162,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "dbInstanceRole",
 						"propertyType": "select",
 						"defaultValue": "Reader",
-						"options": [
-							"Reader",
-							"Writer"
-						]
+						"options": ["Reader", "Writer"]
 					},
 					{
 						"propertyName": "Promotion Tier",
@@ -309,15 +306,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "startDay",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"Monday",
-					"Tuesday",
-					"Wednesday",
-					"Thursday",
-					"Friday",
-					"Saturday",
-					"Sunday"
-				],
+				"options": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
 				"dependency": {
 					"key": "maintenance",
 					"value": true

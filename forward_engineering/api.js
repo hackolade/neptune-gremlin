@@ -1,6 +1,6 @@
-const gremlinHelper = require("./gremlinHelper");
+const gremlinHelper = require('./gremlinHelper');
 const reverseEngineeringApi = require('../reverse_engineering/api');
-const applyToInstanceHelper = require("./applyToInstanceHelper");
+const applyToInstanceHelper = require('./applyToInstanceHelper');
 
 module.exports = {
 	generateContainerScript(data, logger, cb, app) {
@@ -26,7 +26,7 @@ module.exports = {
 			}
 
 			cb(null, resultScript);
-		} catch(e) {
+		} catch (e) {
 			logger.log('error', { message: e.message, stack: e.stack }, 'Forward-Engineering Error');
 
 			cb({ message: e.message, stack: e.stack });
@@ -44,7 +44,7 @@ module.exports = {
 			if (!data.script) {
 				return cb({ message: 'There is no script to apply' });
 			}
-			const progress = createLogger(logger, '', '')
+			const progress = createLogger(logger, '', '');
 
 			progress('Applying Gremlin script ...');
 
@@ -52,15 +52,15 @@ module.exports = {
 			const gremlinClient = await helper.getGremlinClient(data);
 
 			progress('Uploading vertices ...');
-			
+
 			await helper.runGremlinQueries(gremlinClient, labels);
-			
+
 			progress('Uploading edges ...');
 
 			await helper.runGremlinQueries(gremlinClient, edges);
-			
+
 			cb();
-		} catch(err) {
+		} catch (err) {
 			logger.log('error', mapError(err));
 			cb(mapError(err));
 		}
@@ -68,17 +68,17 @@ module.exports = {
 
 	testConnection(connectionInfo, logger, cb, app) {
 		reverseEngineeringApi.testConnection(connectionInfo, logger, cb, app);
-	}
+	},
 };
 
-const createLogger = (logger, containerName, entityName) => (message) => {
+const createLogger = (logger, containerName, entityName) => message => {
 	logger.progress({ message, containerName, entityName });
 	logger.log('info', { message }, 'Applying to instance');
 };
 
-const mapError = (error) => {
+const mapError = error => {
 	return {
 		message: error.message,
-		stack: error.stack
+		stack: error.stack,
 	};
 };
