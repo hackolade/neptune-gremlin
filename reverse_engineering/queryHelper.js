@@ -1,3 +1,4 @@
+const _ = require('lodash');
 module.exports = ({ _, connection }) => {
 	return {
 		async getLabels() {
@@ -75,6 +76,16 @@ module.exports = ({ _, connection }) => {
 			return response.toArray().map(getItemProperties(_));
 		},
 	};
+};
+
+const handleMap = map => {
+	return Array.from(map).reduce((obj, [key, value]) => {
+		if (_.isMap(value)) {
+			return Object.assign(obj, { [key]: handleMap(value) });
+		}
+
+		return Object.assign(obj, { [key]: value });
+	}, {});
 };
 
 const getItemProperties = _ => propertiesMap => {
