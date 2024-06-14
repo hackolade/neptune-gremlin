@@ -1,7 +1,7 @@
 const DEFAULT_INDENT = '    ';
 let graphName = 'g';
 
-module.exports = (_) => {
+module.exports = _ => {
 	const generateVertex = (collection, vertexData) => {
 		const vertexName = transformToValidGremlinName(collection.collectionName);
 		const propertiesScript = addPropertiesScript(collection, vertexData);
@@ -13,8 +13,8 @@ module.exports = (_) => {
 		const vertices = collections.map(collection => {
 			const vertexData = JSON.parse(jsonData[collection.GUID]);
 
-			return generateVertex(collection, vertexData)
-		});	
+			return generateVertex(collection, vertexData);
+		});
 
 		const script = vertices.join(';\n\n');
 		if (!script) {
@@ -22,7 +22,7 @@ module.exports = (_) => {
 		}
 
 		return script + ';';
-	}
+	};
 
 	const generateEdge = (from, to, relationship, edgeData) => {
 		const edgeName = transformToValidGremlinName(relationship.name);
@@ -44,7 +44,9 @@ module.exports = (_) => {
 			const to = transformToValidGremlinName(childCollection.collectionName);
 			const edgeData = JSON.parse(jsonData[relationship.GUID]);
 
-			return edges.concat(generateEdge(getVertexVariableScript(from), getVertexVariableScript(to), relationship, edgeData));
+			return edges.concat(
+				generateEdge(getVertexVariableScript(from), getVertexVariableScript(to), relationship, edgeData),
+			);
 		}, []);
 
 		if (_.isEmpty(edges)) {
@@ -52,7 +54,7 @@ module.exports = (_) => {
 		}
 
 		return edges.join(';\n\n') + ';';
-	}
+	};
 
 	const addPropertiesScript = (collection, vertexData, features = { cardinality: true }) => {
 		const properties = _.get(collection, 'properties', {});
@@ -74,18 +76,22 @@ module.exports = (_) => {
 		const valueScript = convertPropertyValue(property, 2, type, vertexData);
 		const cardinality = features.cardinality ? `${property.propCardinality || 'single'}, ` : '';
 
-		return `.\n${DEFAULT_INDENT}property(${cardinality}${JSON.stringify(name)}, ${valueScript})`
+		return `.\n${DEFAULT_INDENT}property(${cardinality}${JSON.stringify(name)}, ${valueScript})`;
 	};
 
 	const convertSet = (property, name, vertexData, features) => {
 		const items = Array.isArray(property.items) ? property.items : [property.items];
 
-		return items.map((item, i) => createProperty(
-			{...item, propCardinality: 'set'},
-			name,
-			Array.isArray(vertexData) ? vertexData[i] || '' : '',
-			features,
-		)).join('');
+		return items
+			.map((item, i) =>
+				createProperty(
+					{ ...item, propCardinality: 'set' },
+					name,
+					Array.isArray(vertexData) ? vertexData[i] || '' : '',
+					features,
+				),
+			)
+			.join('');
 	};
 
 	const convertDate = value => `datetime("${value}")`;
@@ -94,7 +100,7 @@ module.exports = (_) => {
 		const mode = property.mode;
 		const numberValue = JSON.stringify(value);
 
-		switch(mode) {
+		switch (mode) {
 			case 'double':
 				return `${numberValue}d`;
 			case 'float':
@@ -107,7 +113,7 @@ module.exports = (_) => {
 	};
 
 	const convertPropertyValue = (property, level, type, value) => {
-		switch(type) {
+		switch (type) {
 			case 'date':
 				return convertDate(value);
 			case 'number':
@@ -117,7 +123,7 @@ module.exports = (_) => {
 		return `${JSON.stringify(value === undefined ? '' : value)}`;
 	};
 
-	const transformToValidGremlinName = (name) => {
+	const transformToValidGremlinName = name => {
 		const DEFAULT_NAME = 'New_vertex';
 		const DEFAULT_PREFIX = 'v_';
 
@@ -135,7 +141,6 @@ module.exports = (_) => {
 		return nameWithoutSpecialCharacters;
 	};
 
-	
 	return {
 		transformToValidGremlinName,
 		generateVertices,

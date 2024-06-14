@@ -15,13 +15,7 @@
 	},
 	"subtypes": {
 		"no-multi": {
-			"childValueType": [
-				"string",
-				"number",
-				"boolean",
-				"date",
-				"null"
-			]
+			"childValueType": ["string", "number", "boolean", "date", "null"]
 		}
 	}
 }

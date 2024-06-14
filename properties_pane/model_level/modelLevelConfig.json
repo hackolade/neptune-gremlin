@@ -124,9 +124,7 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyTooltip": "DB vendor",
 				"propertyType": "select",
-				"options": [
-					"Amazon Neptune"
-				],
+				"options": ["Amazon Neptune"],
 				"disabledOption": true
 			},
 			{

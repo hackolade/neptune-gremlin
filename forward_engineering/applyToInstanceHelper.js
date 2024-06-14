@@ -10,13 +10,15 @@ const applyToInstanceHelper = (_, aws) => ({
 			host: clusterInfo.ReaderEndpoint,
 			port: clusterInfo.Port,
 		});
-		return connection
+		return connection;
 	},
 
 	runGremlinQueries(gremlinClient, queries) {
-		return Promise.all(queries.map(query => {
-			return gremlinClient.submit(query);
-		}));
+		return Promise.all(
+			queries.map(query => {
+				return gremlinClient.submit(query);
+			}),
+		);
 	},
 
 	parseScriptStatements(script) {

@@ -4,7 +4,7 @@
 		"WRONG_CONNECTION": "Cannot connect to Neptune instance"
 	},
 	"excludeDocKind": ["id"],
-	"connectionList": [ "name", "dbClusterIdentifier", "ssh_user", "region" ],
+	"connectionList": ["name", "dbClusterIdentifier", "ssh_user", "region"],
 	"widestColumn": "dbClusterIdentifier",
 	"helpUrl": "https://hackolade.com/help/ConnecttoaNeptuneinstance.html"
 }

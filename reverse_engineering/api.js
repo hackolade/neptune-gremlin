@@ -6,13 +6,13 @@ const neptuneHelper = require('./neptuneHelper');
 const queryHelper = require('./queryHelper');
 
 module.exports = {
-	disconnect: function(connectionInfo, cb){
+	disconnect: function (connectionInfo, cb) {
 		connectionHelper.close();
 		neptuneHelper.close();
 		cb();
 	},
 
-	testConnection: async function(connectionInfo, logger, cb, app) {
+	testConnection: async function (connectionInfo, logger, cb, app) {
 		try {
 			logger.clear();
 			logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
@@ -24,9 +24,9 @@ module.exports = {
 				...connectionInfo,
 				host: clusterInfo.ReaderEndpoint,
 				port: clusterInfo.Port,
-				debug: (message) => {
+				debug: message => {
 					logger.log('info', { message }, 'SSH Debug');
-				}
+				},
 			});
 			await connection.testConnection();
 			logger.log('info', { 'message': 'Successfully connected to Neptune Database' }, 'Test connection');
@@ -41,7 +41,7 @@ module.exports = {
 		}
 	},
 
-	getDbCollectionsNames: async function(connectionInfo, logger, cb, app) {
+	getDbCollectionsNames: async function (connectionInfo, logger, cb, app) {
 		try {
 			logger.clear();
 			logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
@@ -52,9 +52,9 @@ module.exports = {
 				...connectionInfo,
 				host: clusterInfo.ReaderEndpoint,
 				port: clusterInfo.Port,
-				debug: (message) => {
+				debug: message => {
 					logger.log('info', { message }, 'SSH Debug');
-				}
+				},
 			});
 			const query = queryHelper({
 				_: app.require('lodash'),
@@ -63,17 +63,19 @@ module.exports = {
 			const labels = await query.getLabels();
 			logger.log('info', { labels, message: 'Labels successfully rertieved' }, 'Get label names');
 
-			cb(null, [{
-				dbName: clusterInfo.name,
-				dbCollections: labels,
-			}]);
+			cb(null, [
+				{
+					dbName: clusterInfo.name,
+					dbCollections: labels,
+				},
+			]);
 		} catch (error) {
 			logger.log('error', prepareError(error));
 			cb(prepareError(error));
 		}
 	},
 
-	getDbCollectionsData: async function(data, logger, cb, app){
+	getDbCollectionsData: async function (data, logger, cb, app) {
 		try {
 			logger.log('info', data, 'connectionInfo', data.hiddenKeys);
 			const async = app.require('async');
@@ -81,7 +83,7 @@ module.exports = {
 			const neptuneInstance = await neptuneHelper.connect();
 			const connection = await connectionHelper.connect();
 			const query = queryHelper({ _, connection });
-	
+
 			const collections = data.collectionData.collections;
 			const dataBaseNames = data.collectionData.dataBaseNames;
 			const fieldInference = data.fieldInference;
@@ -89,12 +91,12 @@ module.exports = {
 			const recordSamplingSettings = data.recordSamplingSettings;
 			let packages = {
 				labels: [],
-				relationships: []
+				relationships: [],
 			};
 
 			const bucketInfo = await neptuneInstance.getBucketInfo();
 
-			await async.map(dataBaseNames, async (dbName) => {
+			await async.map(dataBaseNames, async dbName => {
 				let labels = collections[dbName];
 				const labelPackages = await getNodesData({
 					sampling: {
@@ -110,7 +112,7 @@ module.exports = {
 					_,
 				});
 
-				packages.labels.push(labelPackages.map(pack => ({ ...pack, bucketInfo, })));
+				packages.labels.push(labelPackages.map(pack => ({ ...pack, bucketInfo })));
 				labels = labelPackages.map(packageData => packageData.collectionName);
 
 				const getLimit = quantity => getSampleDocSize(quantity, recordSamplingSettings);
@@ -127,8 +129,8 @@ module.exports = {
 					recordSamplingSettings,
 					schema: relationshipSchema,
 				});
-				
-				packages.relationships.push(relationships.map(pack => ({ ...pack, bucketInfo, })));
+
+				packages.relationships.push(relationships.map(pack => ({ ...pack, bucketInfo })));
 			});
 
 			cb(null, packages.labels, {}, [].concat.apply([], packages.relationships));
@@ -136,7 +138,7 @@ module.exports = {
 			logger.log('error', prepareError(error));
 			cb(prepareError(error));
 		}
-	}
+	},
 };
 
 const getSampleDocSize = (count, recordSamplingSettings) => {
@@ -167,20 +169,12 @@ const getTemplate = (_, documents, rootTemplateArray = []) => {
 	return documents.reduce((tpl, doc) => _.merge(tpl, doc), template);
 };
 
-const getNodesData = async ({
-	_,
-	async,
-	dbName,
-	labels,
-	logger,
-	query,
-	sampling,
-}) => {
-	const packages = await async.map(labels, async (labelName) => {
+const getNodesData = async ({ _, async, dbName, labels, logger, query, sampling }) => {
+	const packages = await async.map(labels, async labelName => {
 		logger.progress({ message: 'Start sampling data', containerName: dbName, entityName: labelName });
-		
+
 		const quantity = await query.getNodesCount(labelName);
-		
+
 		logger.progress({ message: 'Start getting data from graph', containerName: dbName, entityName: labelName });
 		const limit = getSampleDocSize(quantity, sampling.recordSamplingSettings);
 
@@ -190,12 +184,12 @@ const getNodesData = async ({
 		const template = [];
 
 		logger.progress({ message: `Data successfully retrieved`, containerName: dbName, entityName: labelName });
-		
+
 		const packageData = getLabelPackage({
-			includeEmptyCollection: sampling.includeEmptyCollection, 
+			includeEmptyCollection: sampling.includeEmptyCollection,
 			fieldInference: sampling.fieldInference,
-			dbName, 
-			labelName, 
+			dbName,
+			labelName,
 			documents,
 			schema,
 			template,
@@ -204,8 +198,7 @@ const getNodesData = async ({
 
 		return packageData;
 	});
-			
-			
+
 	const sortedPackages = sortPackagesByLabels(_, labels, packages.filter(Boolean));
 
 	return sortedPackages;
@@ -223,35 +216,27 @@ const sortPackagesByLabels = (_, labels, packages) => {
 		}
 
 		return indexA - indexB;
-	})
-}
+	});
+};
 
-const getRelationshipData = ({
-	_,
-	async,
-	query,
-	schema,
-	dbName,
-	recordSamplingSettings,
-	fieldInference,
-}) => {
-	return async.map(schema, async (chain) => {
+const getRelationshipData = ({ _, async, query, schema, dbName, recordSamplingSettings, fieldInference }) => {
+	return async.map(schema, async chain => {
 		const quantity = await query.getCountRelationshipsData(chain.start, chain.relationship, chain.end);
 		const count = getSampleDocSize(quantity, recordSamplingSettings);
 		const documents = await query.getRelationshipData(chain.start, chain.relationship, chain.end, count);
 		const graphSons = await query.getSchema('E', chain.relationship, count);
 		const schema = getSchema(graphSons);
 		const template = [];
-		
+
 		let packageData = {
 			dbName,
-			parentCollection: chain.start, 
-			relationshipName: chain.relationship, 
+			parentCollection: chain.start,
+			relationshipName: chain.relationship,
 			childCollection: chain.end,
 			documents,
 			validation: {
-				jsonSchema: schema
-			}
+				jsonSchema: schema,
+			},
 		};
 
 		if (fieldInference.active === 'field') {
@@ -262,7 +247,16 @@ const getRelationshipData = ({
 	});
 };
 
-const getLabelPackage = ({_, dbName, labelName, documents, template, schema, includeEmptyCollection, fieldInference}) => {
+const getLabelPackage = ({
+	_,
+	dbName,
+	labelName,
+	documents,
+	template,
+	schema,
+	includeEmptyCollection,
+	fieldInference,
+}) => {
 	let packageData = {
 		dbName,
 		collectionName: labelName,
@@ -270,10 +264,9 @@ const getLabelPackage = ({_, dbName, labelName, documents, template, schema, inc
 		views: [],
 		emptyBucket: false,
 		validation: {
-			jsonSchema: schema
+			jsonSchema: schema,
 		},
-		bucketInfo: {
-		}
+		bucketInfo: {},
 	};
 
 	if (fieldInference.active === 'field') {
@@ -285,27 +278,30 @@ const getLabelPackage = ({_, dbName, labelName, documents, template, schema, inc
 	} else {
 		return null;
 	}
-}; 
+};
 
-const prepareError = (error) => {
+const prepareError = error => {
 	return {
 		message: error.message,
-		stack: error.stack
+		stack: error.stack,
 	};
 };
 
-const getSchema = (graphSons) => {
-	return graphSons.reduce((jsonSchema, graphSon) => {
-		const schema = convertGraphSonToJsonSchema(graphSon);
+const getSchema = graphSons => {
+	return graphSons.reduce(
+		(jsonSchema, graphSon) => {
+			const schema = convertGraphSonToJsonSchema(graphSon);
 
-		return {
-			...jsonSchema,
-			properties: {
-				...jsonSchema.properties,
-				...schema.properties,
-			},
-		};
-	}, {
-		properties: {},
-	});
+			return {
+				...jsonSchema,
+				properties: {
+					...jsonSchema.properties,
+					...schema.properties,
+				},
+			};
+		},
+		{
+			properties: {},
+		},
+	);
 };
