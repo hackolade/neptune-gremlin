@@ -33,9 +33,9 @@
     "description": "Hackolade plugin for Amazon Neptune with Gremlin API",
     "disabled": false,
     "dependencies": {
-        "gremlin": "3.4.3",
+        "gremlin": "3.7.2",
         "lodash": "4.17.21",
-        "tunnel-ssh": "4.1.4"
+        "tunnel-ssh": "4.1.6"
     },
     "lint-staged": {
         "*.{js,json}": "prettier --write"
