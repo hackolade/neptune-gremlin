@@ -37,7 +37,8 @@ module.exports = {
 		try {
 			const _ = app.require('lodash');
 			const aws = app.require('aws-sdk');
-			const helper = applyToInstanceHelper(_, aws);
+			const sshService = app.require('@hackolade/ssh-service');
+			const helper = applyToInstanceHelper(_, aws, sshService);
 			logger.clear();
 			logger.log('info', data, data.hiddenKeys);
 

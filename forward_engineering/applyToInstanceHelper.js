@@ -1,15 +1,16 @@
 const connectionHelper = require('../reverse_engineering/connectionHelper');
 const neptuneHelper = require('../reverse_engineering/neptuneHelper');
 
-const applyToInstanceHelper = (_, aws) => ({
+const applyToInstanceHelper = (_, aws, sshService) => ({
 	async getGremlinClient(connectionInfo) {
 		const neptuneInstance = await neptuneHelper.connect(aws, connectionInfo);
 		const clusterInfo = await neptuneInstance.getBucketInfo();
-		const connection = await connectionHelper.connect({
+		const info = {
 			...connectionInfo,
 			host: clusterInfo.ReaderEndpoint,
 			port: clusterInfo.Port,
-		});
+		};
+		const connection = await connectionHelper.connect(info, sshService);
 		return connection;
 	},
 

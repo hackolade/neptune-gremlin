@@ -1,59 +1,36 @@
 const fs = require('fs');
-const ssh = require('tunnel-ssh');
 const gremlin = require('gremlin');
 
 let graphName = 'g';
 
 let connection = null;
 
-const getSshConfig = info => {
-	const config = {
-		ssh: info.ssh,
-		username: info.ssh_user || 'ec2-user',
-		host: info.ssh_host,
-		port: info.ssh_port || 22,
-		dstHost: info.host,
-		dstPort: info.port,
-		localHost: '127.0.0.1',
-		localPort: info.port,
-		keepAlive: true,
-		debug: info.debug,
-	};
-
-	return Object.assign({}, config, {
-		privateKey: fs.readFileSync(info.ssh_key_file),
-		passphrase: info.ssh_key_passphrase,
-	});
-};
-
-const connectViaSsh = info =>
-	new Promise((resolve, reject) => {
-		ssh(getSshConfig(info), (err, tunnel) => {
-			if (err) {
-				reject(err);
-			} else {
-				resolve({
-					tunnel,
-					info: Object.assign({}, info, {
-						host: '127.0.0.1',
-					}),
-				});
-			}
-		});
-	});
-
-const connect = async info => {
+const connect = async (info, sshService) => {
 	if (connection) {
 		return connection;
 	}
-	let sshTunnel;
-	const result = await connectViaSsh(info);
 
-	info = result.info;
-	sshTunnel = result.tunnel;
+	let sshTunnel;
+	const { options } = await sshService.openTunnel({
+		sshAuthMethod: 'IDENTITY_FILE',
+		sshTunnelHostname: info.ssh_host,
+		sshTunnelPort: info.ssh_port || 22,
+		sshTunnelUsername: info.ssh_user || 'ec2-user',
+		sshTunnelIdentityFile: info.ssh_key_file,
+		sshTunnelPassphrase: info.ssh_key_passphrase,
+		host: info.host,
+		port: info.port,
+		keepAlive: true,
+		debug: info.debug,
+	});
+
+	info = {
+		...info,
+		...options,
+	};
 
 	const data = await connectToInstance(info);
-	connection = createConnection({ ...data, sshTunnel });
+	connection = createConnection({ ...data, sshService });
 
 	return connection;
 };
@@ -99,7 +76,7 @@ const createPlainGraphSonReader = () => ({
 	},
 });
 
-const createConnection = ({ client, graphSonClient, sshTunnel }) => {
+const createConnection = ({ client, graphSonClient, sshService }) => {
 	let closed = false;
 
 	return {
@@ -126,8 +103,8 @@ const createConnection = ({ client, graphSonClient, sshTunnel }) => {
 			if (graphSonClient) {
 				await graphSonClient.close();
 			}
-			if (sshTunnel) {
-				await sshTunnel.close();
+			if (sshService) {
+				await sshService.closeConsumer();
 			}
 
 			closed = true;
