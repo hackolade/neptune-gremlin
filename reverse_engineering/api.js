@@ -19,16 +19,21 @@ module.exports = {
 
 			const neptuneInstance = await neptuneHelper.connect(app.require('aws-sdk'), connectionInfo);
 			const clusterInfo = await neptuneInstance.getBucketInfo();
+
 			logger.log('info', { clusterInfo, message: 'Successfully connected to AWS' }, 'Test connection');
-			const connection = await connectionHelper.connect({
+
+			const sshService = app.require('@hackolade/ssh-service');
+			const info = {
 				...connectionInfo,
 				host: clusterInfo.ReaderEndpoint,
 				port: clusterInfo.Port,
 				debug: message => {
 					logger.log('info', { message }, 'SSH Debug');
 				},
-			});
+			};
+			const connection = await connectionHelper.connect(info, sshService);
 			await connection.testConnection();
+
 			logger.log('info', { 'message': 'Successfully connected to Neptune Database' }, 'Test connection');
 
 			this.disconnect(connectionInfo, () => {});
@@ -45,17 +50,22 @@ module.exports = {
 		try {
 			logger.clear();
 			logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
+
 			const neptuneInstance = await neptuneHelper.connect(app.require('aws-sdk'), connectionInfo);
 			const clusterInfo = await neptuneInstance.getBucketInfo();
+
 			logger.log('info', { clusterInfo, message: 'Successfully connected to AWS' }, 'Get label names');
-			const connection = await connectionHelper.connect({
+
+			const sshService = app.require('@hackolade/ssh-service');
+			const info = {
 				...connectionInfo,
 				host: clusterInfo.ReaderEndpoint,
 				port: clusterInfo.Port,
 				debug: message => {
 					logger.log('info', { message }, 'SSH Debug');
 				},
-			});
+			};
+			const connection = await connectionHelper.connect(info, sshService);
 			const query = queryHelper({
 				_: app.require('lodash'),
 				connection,
