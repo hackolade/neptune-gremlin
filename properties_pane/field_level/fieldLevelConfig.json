@@ -127,10 +127,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "propCardinality",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"single",
-					"set"
-				],
+				"options": ["single", "set"],
 				"dependency": [
 					{
 						"level": "parent",
@@ -160,14 +157,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Subtype",
 				"propertyKeyword": "mode",
 				"propertyType": "select",
-				"options": [
-					"byte",
-					"short",
-					"integer",
-					"long",
-					"double",
-					"float"
-				],
+				"options": ["byte", "short", "integer", "long", "double", "float"],
 				"data": "options",
 				"valueType": "string"
 			},
@@ -176,10 +166,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "propCardinality",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"single",
-					"set"
-				],
+				"options": ["single", "set"],
 				"dependency": [
 					{
 						"level": "parent",
@@ -212,10 +199,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "propCardinality",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"single",
-					"set"
-				],
+				"options": ["single", "set"],
 				"dependency": [
 					{
 						"level": "parent",
@@ -243,10 +227,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "propCardinality",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"single",
-					"set"
-				],
+				"options": ["single", "set"],
 				"dependency": [
 					{
 						"level": "parent",
