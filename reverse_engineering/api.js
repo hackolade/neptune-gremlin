@@ -6,7 +6,7 @@ const neptuneHelper = require('./neptuneHelper');
 const queryHelper = require('./queryHelper');
 
 module.exports = {
-	disconnect: function (connectionInfo, cb) {
+	disconnect: function (connectionInfo, logger, cb, app) {
 		connectionHelper.close();
 		neptuneHelper.close();
 		cb();
@@ -36,11 +36,11 @@ module.exports = {
 
 			logger.log('info', { 'message': 'Successfully connected to Neptune Database' }, 'Test connection');
 
-			this.disconnect(connectionInfo, () => {});
+			this.disconnect(connectionInfo, logger, () => {});
 
 			cb();
 		} catch (error) {
-			this.disconnect(connectionInfo, () => {});
+			this.disconnect(connectionInfo, logger, () => {});
 			logger.log('error', prepareError(error));
 			cb({ message: 'Connection error', stack: error.stack });
 		}
