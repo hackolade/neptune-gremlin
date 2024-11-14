@@ -1,5 +1,5 @@
 const { head } = require('lodash');
-const { NeptuneClient, DescribeDBClustersCommand, DescribeDBInstancesCommand } = require('@aws-sdk/client-neptune');
+const { NeptuneClient, DescribeDBClustersCommand } = require('@aws-sdk/client-neptune');
 const { hckFetchAwsSdkHttpHandler } = require('@hackolade/fetch');
 
 let neptuneInstance = null;
@@ -81,26 +81,6 @@ const awsNeptuneClient = {
 			neptuneInstance = null;
 		}
 	},
-};
-
-const describeDBInstances = async ({ neptuneClient, dBInstanceIdentifier, dbClusterIdentifier }) => {
-	const filters = [];
-
-	if (dbClusterIdentifier) {
-		filters.push({
-			Name: 'db-cluster-id',
-			Values: [dbClusterIdentifier],
-		});
-	}
-
-	const result = await neptuneClient.send(
-		new DescribeDBInstancesCommand({
-			DBInstanceIdentifier: dBInstanceIdentifier,
-			Filters: filters,
-		}),
-	);
-
-	return result.DBInstances;
 };
 
 module.exports = awsNeptuneClient;
