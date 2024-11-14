@@ -1,12 +1,12 @@
-'use strict';
-
+const async = require('async');
+const _ = require('lodash');
 const connectionHelper = require('./connectionHelper');
-const convertGraphSonToJsonSchema = require('./convertGraphsonToJsonSchema');
-const neptuneHelper = require('./neptuneHelper');
+const { convertGraphSonToJsonSchema } = require('./convertGraphsonToJsonSchema');
+const neptuneHelper = require('../shared/awsNeptuneClient');
 const queryHelper = require('./queryHelper');
 
 module.exports = {
-	disconnect: function (connectionInfo, logger, cb, app) {
+	disconnect: function (connectionInfo, logger, cb) {
 		connectionHelper.close();
 		neptuneHelper.close();
 		cb();
@@ -14,10 +14,9 @@ module.exports = {
 
 	testConnection: async function (connectionInfo, logger, cb, app) {
 		try {
-			logger.clear();
 			logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 
-			const neptuneInstance = await neptuneHelper.connect(app.require('aws-sdk'), connectionInfo);
+			const neptuneInstance = await neptuneHelper.connect({ connectionInfo });
 			const clusterInfo = await neptuneInstance.getBucketInfo();
 
 			logger.log('info', { clusterInfo, message: 'Successfully connected to AWS' }, 'Test connection');
@@ -48,10 +47,9 @@ module.exports = {
 
 	getDbCollectionsNames: async function (connectionInfo, logger, cb, app) {
 		try {
-			logger.clear();
 			logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 
-			const neptuneInstance = await neptuneHelper.connect(app.require('aws-sdk'), connectionInfo);
+			const neptuneInstance = await neptuneHelper.connect({ connectionInfo });
 			const clusterInfo = await neptuneInstance.getBucketInfo();
 
 			logger.log('info', { clusterInfo, message: 'Successfully connected to AWS' }, 'Get label names');
@@ -67,11 +65,10 @@ module.exports = {
 			};
 			const connection = await connectionHelper.connect(info, sshService);
 			const query = queryHelper({
-				_: app.require('lodash'),
 				connection,
 			});
 			const labels = await query.getLabels();
-			logger.log('info', { labels, message: 'Labels successfully rertieved' }, 'Get label names');
+			logger.log('info', { labels, message: 'Labels successfully retrieved' }, 'Get label names');
 
 			cb(null, [
 				{
@@ -85,14 +82,13 @@ module.exports = {
 		}
 	},
 
-	getDbCollectionsData: async function (data, logger, cb, app) {
+	getDbCollectionsData: async function (data, logger, cb) {
 		try {
 			logger.log('info', data, 'connectionInfo', data.hiddenKeys);
-			const async = app.require('async');
-			const _ = app.require('lodash');
-			const neptuneInstance = await neptuneHelper.connect();
+
+			const neptuneInstance = await neptuneHelper.connect({ connectionInfo: data });
 			const connection = await connectionHelper.connect();
-			const query = queryHelper({ _, connection });
+			const query = queryHelper({ connection });
 
 			const collections = data.collectionData.collections;
 			const dataBaseNames = data.collectionData.dataBaseNames;
@@ -118,8 +114,6 @@ module.exports = {
 					dbName,
 					labels,
 					logger,
-					async,
-					_,
 				});
 
 				packages.labels.push(labelPackages.map(pack => ({ ...pack, bucketInfo })));
@@ -131,8 +125,6 @@ module.exports = {
 					return labels.indexOf(data.start) !== -1 && labels.indexOf(data.end) !== -1;
 				});
 				const relationships = await getRelationshipData({
-					_,
-					async,
 					query,
 					dbName,
 					fieldInference,
@@ -143,7 +135,7 @@ module.exports = {
 				packages.relationships.push(relationships.map(pack => ({ ...pack, bucketInfo })));
 			});
 
-			cb(null, packages.labels, {}, [].concat.apply([], packages.relationships));
+			cb(null, packages.labels, {}, [].concat(...packages.relationships));
 		} catch (error) {
 			logger.log('error', prepareError(error));
 			cb(prepareError(error));
@@ -161,7 +153,7 @@ const getSampleDocSize = (count, recordSamplingSettings) => {
 	return Math.min(limit, recordSamplingSettings.maxValue);
 };
 
-const isEmptyLabel = (_, documents) => {
+const isEmptyLabel = documents => {
 	if (!Array.isArray(documents)) {
 		return true;
 	}
@@ -169,8 +161,8 @@ const isEmptyLabel = (_, documents) => {
 	return documents.reduce((result, doc) => result && _.isEmpty(doc), true);
 };
 
-const getTemplate = (_, documents, rootTemplateArray = []) => {
-	const template = rootTemplateArray.reduce((template, key) => Object.assign({}, template, { [key]: {} }), {});
+const getTemplate = ({ documents, rootTemplateArray = [] }) => {
+	const template = rootTemplateArray.reduce((template, key) => ({ ...template, [key]: {} }), {});
 
 	if (!_.isArray(documents)) {
 		return template;
@@ -179,7 +171,7 @@ const getTemplate = (_, documents, rootTemplateArray = []) => {
 	return documents.reduce((tpl, doc) => _.merge(tpl, doc), template);
 };
 
-const getNodesData = async ({ _, async, dbName, labels, logger, query, sampling }) => {
+const getNodesData = async ({ dbName, labels, logger, query, sampling }) => {
 	const packages = await async.map(labels, async labelName => {
 		logger.progress({ message: 'Start sampling data', containerName: dbName, entityName: labelName });
 
@@ -195,7 +187,7 @@ const getNodesData = async ({ _, async, dbName, labels, logger, query, sampling 
 
 		logger.progress({ message: `Data successfully retrieved`, containerName: dbName, entityName: labelName });
 
-		const packageData = getLabelPackage({
+		return getLabelPackage({
 			includeEmptyCollection: sampling.includeEmptyCollection,
 			fieldInference: sampling.fieldInference,
 			dbName,
@@ -203,18 +195,13 @@ const getNodesData = async ({ _, async, dbName, labels, logger, query, sampling 
 			documents,
 			schema,
 			template,
-			_,
 		});
-
-		return packageData;
 	});
 
-	const sortedPackages = sortPackagesByLabels(_, labels, packages.filter(Boolean));
-
-	return sortedPackages;
+	return sortPackagesByLabels({ labels, packages: packages.filter(Boolean) });
 };
 
-const sortPackagesByLabels = (_, labels, packages) => {
+const sortPackagesByLabels = ({ labels, packages }) => {
 	return [...packages].sort((a, b) => {
 		const indexA = _.indexOf(labels, a['collectionName']);
 		const indexB = _.indexOf(labels, b['collectionName']);
@@ -229,7 +216,7 @@ const sortPackagesByLabels = (_, labels, packages) => {
 	});
 };
 
-const getRelationshipData = ({ _, async, query, schema, dbName, recordSamplingSettings, fieldInference }) => {
+const getRelationshipData = ({ query, schema, dbName, recordSamplingSettings, fieldInference }) => {
 	return async.map(schema, async chain => {
 		const quantity = await query.getCountRelationshipsData(chain.start, chain.relationship, chain.end);
 		const count = getSampleDocSize(quantity, recordSamplingSettings);
@@ -250,7 +237,7 @@ const getRelationshipData = ({ _, async, query, schema, dbName, recordSamplingSe
 		};
 
 		if (fieldInference.active === 'field') {
-			packageData.documentTemplate = getTemplate(_, documents, template);
+			packageData.documentTemplate = getTemplate({ documents, rootTemplateArray: template });
 		}
 
 		return packageData;
@@ -258,7 +245,6 @@ const getRelationshipData = ({ _, async, query, schema, dbName, recordSamplingSe
 };
 
 const getLabelPackage = ({
-	_,
 	dbName,
 	labelName,
 	documents,
@@ -280,10 +266,10 @@ const getLabelPackage = ({
 	};
 
 	if (fieldInference.active === 'field') {
-		packageData.documentTemplate = getTemplate(_, documents, template);
+		packageData.documentTemplate = getTemplate({ documents, rootTemplateArray: template });
 	}
 
-	if (includeEmptyCollection || !isEmptyLabel(_, documents)) {
+	if (includeEmptyCollection || !isEmptyLabel(documents)) {
 		return packageData;
 	} else {
 		return null;

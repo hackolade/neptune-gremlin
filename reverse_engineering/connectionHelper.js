@@ -1,8 +1,6 @@
-const fs = require('fs');
 const gremlin = require('gremlin');
 
-let graphName = 'g';
-
+const graphName = 'g';
 let connection = null;
 
 const connect = async (info, sshService) => {
@@ -10,7 +8,6 @@ const connect = async (info, sshService) => {
 		return connection;
 	}
 
-	let sshTunnel;
 	const { options } = await sshService.openTunnel({
 		sshAuthMethod: 'IDENTITY_FILE',
 		sshTunnelHostname: info.ssh_host,
