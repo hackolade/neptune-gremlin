@@ -1,21 +1,20 @@
-const gremlinHelper = require('./gremlinHelper');
+const _ = require('lodash');
+const { generateVertices, generateEdges } = require('./gremlinHelper');
 const reverseEngineeringApi = require('../reverse_engineering/api');
 const applyToInstanceHelper = require('./applyToInstanceHelper');
 
 module.exports = {
-	generateContainerScript(data, logger, cb, app) {
-		let { collections, relationships, jsonData, containerData } = data;
+	generateContainerScript(data, logger, cb) {
+		let { collections, relationships, jsonData } = data;
 		logger.clear();
 		try {
-			const _ = app.require('lodash');
-			const helper = gremlinHelper(_);
 			let resultScript = '';
 
 			collections = collections.map(JSON.parse);
 			relationships = relationships.map(JSON.parse);
 
-			const verticesScript = helper.generateVertices(collections, jsonData);
-			const edgesScript = helper.generateEdges(collections, relationships, jsonData);
+			const verticesScript = generateVertices(collections, jsonData);
+			const edgesScript = generateEdges(collections, relationships, jsonData);
 
 			if (verticesScript) {
 				resultScript += verticesScript;
@@ -35,10 +34,11 @@ module.exports = {
 
 	async applyToInstance(data, logger, cb, app) {
 		try {
-			const _ = app.require('lodash');
-			const aws = app.require('aws-sdk');
 			const sshService = app.require('@hackolade/ssh-service');
-			const helper = applyToInstanceHelper(_, aws, sshService);
+			const { parseScriptStatements, getGremlinClient, runGremlinQueries } = applyToInstanceHelper({
+				sshService,
+			});
+
 			logger.clear();
 			logger.log('info', data, data.hiddenKeys);
 
@@ -49,16 +49,16 @@ module.exports = {
 
 			progress('Applying Gremlin script ...');
 
-			const { labels, edges } = helper.parseScriptStatements(data.script);
-			const gremlinClient = await helper.getGremlinClient(data);
+			const { labels, edges } = parseScriptStatements(data.script);
+			const gremlinClient = await getGremlinClient(data);
 
 			progress('Uploading vertices ...');
 
-			await helper.runGremlinQueries(gremlinClient, labels);
+			await runGremlinQueries(gremlinClient, labels);
 
 			progress('Uploading edges ...');
 
-			await helper.runGremlinQueries(gremlinClient, edges);
+			await runGremlinQueries(gremlinClient, edges);
 
 			cb();
 		} catch (err) {

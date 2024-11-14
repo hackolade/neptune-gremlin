@@ -33,5 +33,6 @@ esbuild
 			}),
 			addReleaseFlag(path.resolve(RELEASE_FOLDER_PATH, 'package.json')),
 		],
+		external: ['electron'],
 	})
 	.catch(() => process.exit(1));

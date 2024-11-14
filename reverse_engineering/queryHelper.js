@@ -1,5 +1,6 @@
 const _ = require('lodash');
-module.exports = ({ _, connection }) => {
+
+module.exports = ({ connection }) => {
 	return {
 		async getLabels() {
 			const response = await connection.submit(`g.V().label().dedup().toList()`);
@@ -17,7 +18,7 @@ module.exports = ({ _, connection }) => {
 				`g.V().hasLabel('${label}').limit(${limit}).valueMap(true).toList()`,
 			);
 
-			return response.toArray().map(getItemProperties(_));
+			return response.toArray().map(getItemProperties);
 		},
 
 		async getSchema(gremlinElement, label, limit = 100) {
@@ -73,7 +74,7 @@ module.exports = ({ _, connection }) => {
 					)
 				).limit(${limit}).valueMap(true).toList()`);
 
-			return response.toArray().map(getItemProperties(_));
+			return response.toArray().map(getItemProperties);
 		},
 	};
 };
@@ -88,7 +89,7 @@ const handleMap = map => {
 	}, {});
 };
 
-const getItemProperties = _ => propertiesMap => {
+const getItemProperties = propertiesMap => {
 	return Array.from(propertiesMap).reduce((obj, [key, rawValue]) => {
 		if (!_.isString(key)) {
 			return obj;

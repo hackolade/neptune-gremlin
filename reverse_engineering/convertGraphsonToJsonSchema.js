@@ -50,9 +50,7 @@ const groupPropertiesForMap = properties => {
 	);
 
 	return keys.reduce((properties, key, index) => {
-		return Object.assign({}, properties, {
-			[key]: values[index] || {},
-		});
+		return { ...properties, [key]: values[index] || {} };
 	}, {});
 };
 const getUniqItems = items => {
@@ -140,4 +138,4 @@ const convertGraphSonToJsonSchema = graphSON => {
 	return { type, sample: getSample(type, rawProperties) };
 };
 
-module.exports = convertGraphSonToJsonSchema;
+module.exports = { convertGraphSonToJsonSchema };
