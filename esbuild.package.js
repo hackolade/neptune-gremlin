@@ -11,6 +11,7 @@ const RELEASE_FOLDER_PATH = path.join(DEFAULT_RELEASE_FOLDER_PATH, `${packageDat
 esbuild
 	.build({
 		entryPoints: [
+			path.resolve(__dirname, 'api', 'fe.js'),
 			path.resolve(__dirname, 'forward_engineering', 'api.js'),
 			path.resolve(__dirname, 'reverse_engineering', 'api.js'),
 		],
@@ -33,6 +34,6 @@ esbuild
 			}),
 			addReleaseFlag(path.resolve(RELEASE_FOLDER_PATH, 'package.json')),
 		],
-		external: ['electron'],
+		external: ['lodash', 'electron'],
 	})
 	.catch(() => process.exit(1));
