@@ -82,10 +82,10 @@ module.exports = ({ connection }) => {
 const handleMap = map => {
 	return Array.from(map).reduce((obj, [key, value]) => {
 		if (_.isMap(value)) {
-			return Object.assign(obj, { [key]: handleMap(value) });
+			return { ...obj, [key]: handleMap(value) };
 		}
 
-		return Object.assign(obj, { [key]: value });
+		return { ...obj, [key]: value };
 	}, {});
 };
 
@@ -98,9 +98,9 @@ const getItemProperties = propertiesMap => {
 		const value = _.isArray(rawValue) ? _.first(rawValue) : rawValue;
 
 		if (_.isMap(value)) {
-			return Object.assign(obj, { [key]: handleMap(value) });
+			return { ...obj, [key]: handleMap(value) };
 		}
 
-		return Object.assign(obj, { [key]: value });
+		return { ...obj, [key]: value };
 	}, {});
 };

@@ -27,11 +27,7 @@ const getType = rawType => {
 };
 
 const getValue = item => {
-	if (isPlainObject(item)) {
-		return item['@value'];
-	} else {
-		return item;
-	}
+	return isPlainObject(item) ? item['@value'] : item;
 };
 
 const groupPropertiesForMap = properties => {
@@ -85,9 +81,9 @@ const getSample = (type, value) => {
 		return getDateSample(new Date(value));
 	} else if (Array.isArray(value)) {
 		return getSample(value[0]);
-	} else {
-		return value;
 	}
+
+	return value;
 };
 
 const convertGraphSonToJsonSchema = graphSON => {
