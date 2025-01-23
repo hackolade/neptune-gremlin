@@ -1,6 +1,6 @@
 {
     "name": "Neptune-Gremlin",
-    "version": "0.2.5",
+    "version": "0.2.6",
     "author": "hackolade",
     "engines": {
         "hackolade": "4.2.10",
@@ -50,7 +50,7 @@
     "scripts": {
         "lint": "eslint . --max-warnings=0",
         "package": "node esbuild.package.js",
-		"postinstall": "npx simple-git-hooks"
+        "postinstall": "npx simple-git-hooks"
     },
     "devDependencies": {
         "@hackolade/hck-esbuild-plugins-pack": "0.0.1",
