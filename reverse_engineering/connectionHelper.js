@@ -40,7 +40,7 @@ const close = () => {
 };
 
 const connectToInstance = async info => {
-	const host = info.host;
+	const host = info.escapedHostForUrl;
 	const port = info.port;
 	const clientOptions = {
 		traversalSource: graphName,
