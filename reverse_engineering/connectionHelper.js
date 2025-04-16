@@ -62,7 +62,8 @@ const connectToInstance = async info => {
 };
 
 const createPlainGraphSonReader = () => ({
-	read(obj) {
+	readResponse(buffer) {
+		const obj = JSON.parse(buffer.toString());
 		return {
 			...obj,
 			result: {

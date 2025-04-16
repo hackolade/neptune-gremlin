@@ -8,7 +8,7 @@ const applyToInstanceHelper = ({ sshService }) => ({
 		const clusterInfo = await neptuneInstance.getBucketInfo();
 		const info = {
 			...connectionInfo,
-			host: clusterInfo.ReaderEndpoint,
+			host: clusterInfo.Endpoint,
 			port: clusterInfo.Port,
 		};
 		return await connectionHelper.connect(info, sshService);
