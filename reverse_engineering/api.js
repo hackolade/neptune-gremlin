@@ -14,6 +14,8 @@ module.exports = {
 
 	testConnection: async function (connectionInfo, logger, cb, app) {
 		try {
+			logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
+
 			const neptuneInstance = await neptuneHelper.connect({ connectionInfo });
 			const clusterInfo = await neptuneInstance.getBucketInfo();
 
@@ -45,6 +47,8 @@ module.exports = {
 
 	getDbCollectionsNames: async function (connectionInfo, logger, cb, app) {
 		try {
+			logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
+
 			const neptuneInstance = await neptuneHelper.connect({ connectionInfo });
 			const clusterInfo = await neptuneInstance.getBucketInfo();
 
@@ -80,6 +84,8 @@ module.exports = {
 
 	getDbCollectionsData: async function (data, logger, cb) {
 		try {
+			logger.log('info', data, 'connectionInfo', data.hiddenKeys);
+
 			const neptuneInstance = await neptuneHelper.connect({ connectionInfo: data });
 			const connection = await connectionHelper.connect();
 			const query = queryHelper({ connection });
