@@ -12,6 +12,9 @@ module.exports = {
 				sshService,
 			});
 
+			logger.clear();
+			logger.log('info', data, data.hiddenKeys);
+
 			if (!data.script) {
 				return cb({ message: 'There is no script to apply' });
 			}
