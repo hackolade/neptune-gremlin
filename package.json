@@ -34,7 +34,7 @@
     "description": "Hackolade plugin for Amazon Neptune with Gremlin API",
     "disabled": false,
     "dependencies": {
-        "@aws-sdk/client-neptune": "3.982.0",
+        "@aws-sdk/client-neptune": "3.1000.0",
         "@hackolade/fetch": "1.1.0",
         "async": "3.2.6",
         "gremlin": "3.7.3",
@@ -54,18 +54,19 @@
     },
     "devDependencies": {
         "@hackolade/hck-esbuild-plugins-pack": "0.0.1",
+        "@ianvs/prettier-plugin-sort-imports": "4.7.1",
         "esbuild": "0.27.3",
         "esbuild-node-externals": "1.20.1",
         "esbuild-plugin-clean": "1.0.1",
         "esbuild-plugin-copy": "2.1.1",
         "lint-staged": "16.2.7",
-        "prettier": "3.8.1",
-        "simple-git-hooks": "2.13.1",
         "oxlint": "1.38.0",
         "oxlint-tsgolint": "0.10.1",
-        "@ianvs/prettier-plugin-sort-imports": "4.7.1"
+        "prettier": "3.8.1",
+        "simple-git-hooks": "2.13.1"
     },
     "overrides": {
-        "minimatch": "10.2.1"
+        "minimatch": "10.2.4",
+        "fast-xml-parser": "5.3.8"
     }
 }
